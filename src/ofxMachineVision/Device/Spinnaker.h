@@ -14,10 +14,14 @@ namespace ofxMachineVision {
 				InitialisationSettings() {
 					add(useSerialNumber);
 					add(serialNumber);
+					//add(width);
+					//add(height);
 				}
 
 				ofParameter<bool> useSerialNumber{ "Use Serial number", false };
 				ofParameter<string> serialNumber{ "Serial number", "" };
+				//ofParameter<int> width{ "Width", -1 };
+				//ofParameter<int> height{ "Height", -1 };
 			};
 
 			Spinnaker();

@@ -81,6 +81,16 @@ namespace ofxMachineVision {
 
 			this->camera->Init();
 
+			//set custom capture size
+			//{
+			//	int maxW = this->camera->Width.GetMax();
+			//	int maxH = this->camera->Height.GetMax();
+			//	int w = (settings->width < 0) ? maxW : settings->width;
+			//	int h = (settings->height < 0) ? maxH : settings->height;
+			//	this->camera->Width.SetValue(w);
+			//	this->camera->Height.SetValue(h);
+			//}
+
 			Specification specification(CaptureSequenceType::Continuous
 				, this->camera->Width.GetValue()
 				, this->camera->Height.GetValue()
@@ -120,7 +130,7 @@ namespace ofxMachineVision {
 
 			// Trigger delay parameter
 			try {
-			this->setupFloatParameter(this->camera->TriggerDelay);
+				this->setupFloatParameter(this->camera->TriggerDelay);
 			}
 			catch (const std::exception& e) {
 				OFXMV_ERROR << "Cannot add parameter TriggerDelay. " << e.what();
