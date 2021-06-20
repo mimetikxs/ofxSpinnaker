@@ -1,5 +1,5 @@
 //=============================================================================
-// Copyright (c) 2001-2018 FLIR Systems, Inc. All Rights Reserved.
+// Copyright (c) 2001-2021 FLIR Systems, Inc. All Rights Reserved.
 //
 // This software is the confidential and proprietary information of FLIR
 // Integrated Imaging Solutions, Inc. ("Confidential Information"). You
@@ -20,60 +20,102 @@
 
 #include "Interface/IImage.h"
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 namespace Spinnaker
 {
     class ImageStatistics;
     class ImagePtr;
-    enum PixelFormatEnums;
 
     /**
-    *  @defgroup SpinnakerClasses Spinnaker Classes
-    */
+     *  @defgroup SpinnakerClasses Spinnaker Classes
+     */
     /*@{*/
 
     /**
-    *  @defgroup Image_h Image Class
-    */
+     *  @defgroup Image_h Image Class
+     */
     /*@{*/
 
     /**
-    * @brief The image object class.
-    */
+     * @brief The image object class.
+     */
 
     class SPINNAKER_API Image : public IImage
     {
-        friend class IDataStream;
-        friend class Stream;
 
-    public:
-
+      public:
         /**
-        * Create an image object.
-        */
+         * Create an image object.
+         */
         static ImagePtr Create();
 
         /**
-        * Create an image object that is a deep copy of the input image.
-        *
-        * @param image The input image to copy
-        */
+         * Create an image object that is a deep copy of the input image.
+         *
+         * @param image The input image to copy
+         */
         static ImagePtr Create(const ImagePtr image);
 
         /**
-        * Create an image object with the specified parameters.
-        *
-        * @param width The image width in pixels
-        * @param height The image height in pixels
-        * @param offsetX The image X offset
-        * @param offsetY The image Y offset
-        * @param pixelFormat The image pixel format
-        * @param pData The image data
-        */
-        static ImagePtr Create(size_t width, size_t height, size_t offsetX, size_t offsetY, Spinnaker::PixelFormatEnums pixelFormat, void* pData);
+         * Create an image object with the specified parameters.
+         *
+         * @param width The image width in pixels
+         * @param height The image height in pixels
+         * @param offsetX The image X offset
+         * @param offsetY The image Y offset
+         * @param pixelFormat The image pixel format
+         * @param pData The image data
+         */
+        static ImagePtr Create(
+            size_t width,
+            size_t height,
+            size_t offsetX,
+            size_t offsetY,
+            Spinnaker::PixelFormatEnums pixelFormat,
+            void* pData);
 
         /**
-        * Virtual destructor.
-        */
+         * Create an image object with the specified parameters.
+         * This function is used to create an image from existing image data with a specific payload type, such as a
+         * compressed image.
+         *
+         * Note that images with chunk payload types are saved with only the image data preserved. Remember to
+         * specify the non-chunk equivalent payload type when creating images with these chunk payload types. For
+         * example, images need to be created with PAYLOAD_TYPE_IMAGE payload type if the original image had
+         * PAYLOAD_TYPE_EXTENDED_CHUNK payload type.
+         *
+         * @param width The image width in pixels
+         * @param height The image height in pixels
+         * @param offsetX The image X offset
+         * @param offsetY The image Y offset
+         * @param pixelFormat The image pixel format
+         * @param pData The compressed image data
+         * @param dataPayloadType The payload type of the data.
+         *   This value can be retrieved from an existing image by using the GetTLPayloadType() function call.
+         * @param dataSize The size of the provided data in bytes
+         *
+         * @see GetTLPayloadType()
+         */
+        static ImagePtr Create(
+            size_t width,
+            size_t height,
+            size_t offsetX,
+            size_t offsetY,
+            Spinnaker::PixelFormatEnums pixelFormat,
+            void* pData,
+            PayloadTypeInfoIDs dataPayloadType,
+            size_t dataSize);
+
+        /**
+         * Virtual destructor.
+         */
         virtual ~Image();
 
         /**
@@ -86,7 +128,6 @@ namespace Spinnaker
          * @param colorAlgorithm The color processing algorithm to set.
          *
          * @see GetDefaultColorProcessing()
-         *
          */
         static void SetDefaultColorProcessing(ColorProcessingAlgorithm colorAlgorithm);
 
@@ -109,18 +150,68 @@ namespace Spinnaker
         ColorProcessingAlgorithm GetColorProcessing() const;
 
         /**
+         * Sets the default number of threads used for image decompression during
+         * Convert(). The number of threads used is defaulted to be equal to one
+         * less than the number of concurrent threads supported by the
+         * system.
+         *
+         * @param numThreads Number of parallel image decompression threads set to run
+         *
+         * @see Convert()
+         */
+        static void SetNumDecompressionThreads(unsigned int numThreads);
+
+        /**
+         * Gets the number of threads used for image decompression during Convert().
+         *
+         * @see SetNumDecompressionThreads()
+         *
+         * @return Number of parallel image decompression threads set to run.
+         */
+        static unsigned int GetNumDecompressionThreads();
+
+        /**
          * Converts the current image buffer to the specified output pixel format and
          * stores the result in the specified image. The destination image
-         * does not need to be configured in any way before the call is made.
+         * does not need to be configured in any way before the call is made. Note that
+         * compressed images are decompressed before any further color processing or
+         * conversion during this call. Decompression is multi-threaded and defaults to
+         * utilizing one less than the number of concurrent threads supported by the
+         * system. The default number of decompression threads can be set with
+         * SetNumDecompressionThreads().
          *
          * @see PixelFormatEnums
+         * @see SetNumDecompressionThreads(unsigned int numThreads)
          *
          * @param format Output format of the converted image.
          * @param colorAlgorithm Optional color processing algorithm for producing the converted image
-         * @return The converted image.
          *
+         * @return The converted image.
          */
         ImagePtr Convert(Spinnaker::PixelFormatEnums format, ColorProcessingAlgorithm colorAlgorithm = DEFAULT) const;
+
+        /**
+         * Converts the current image buffer to the specified output pixel format and
+         * stores the result in the specified destination image. The destination image
+         * buffer size must be sufficient to store the converted image data. Note that
+         * compressed images are decompressed before any further color processing or
+         * conversion during this call. Decompression is multi-threaded and defaults to
+         * utilizing one less than the number of concurrent threads supported by the
+         * system. The default number of decompression threads can be set with
+         * SetNumDecompressionThreads().
+         *
+         * @see Create(size_t width, size_t height, size_t offsetX, size_t offsetY, Spinnaker::PixelFormatEnums
+         * pixelFormat, void* pData)
+         * @see SetNumDecompressionThreads(unsigned int numThreads)
+         *
+         * @param destinationImage Destination image where the converted output result will be stored.
+         * @param format Output format of the converted image.
+         * @param colorAlgorithm Optional color processing algorithm for producing the converted image.
+         */
+        void Convert(
+            ImagePtr destinationImage,
+            Spinnaker::PixelFormatEnums format,
+            ColorProcessingAlgorithm colorAlgorithm = DEFAULT) const;
 
         /**
          * Sets new dimensions of the image object and allocates memory.
@@ -130,9 +221,13 @@ namespace Spinnaker
          * @param offsetX The x offset in pixels to set.
          * @param offsetY The y offset in pixels  to set.
          * @param pixelFormat Pixel format to set.
-         *
          */
-        void ResetImage(size_t width, size_t height, size_t offsetX, size_t offsetY, Spinnaker::PixelFormatEnums pixelFormat);
+        void ResetImage(
+            size_t width,
+            size_t height,
+            size_t offsetX,
+            size_t offsetY,
+            Spinnaker::PixelFormatEnums pixelFormat);
 
         /**
          * Sets new dimensions of the image object.
@@ -143,25 +238,56 @@ namespace Spinnaker
          * @param offsetY The y offset in pixels to set.
          * @param pixelFormat Pixel format to set.
          * @param pData Pointer to the image buffer.
-         *
          */
-        void ResetImage(size_t width, size_t height, size_t offsetX, size_t offsetY, Spinnaker::PixelFormatEnums pixelFormat, void* pData);
+        void ResetImage(
+            size_t width,
+            size_t height,
+            size_t offsetX,
+            size_t offsetY,
+            Spinnaker::PixelFormatEnums pixelFormat,
+            void* pData);
+
+        /**
+         * Sets new dimensions of the image object.
+         * This function is used to create an image from existing image data with a specific payload type, such as a
+         * compressed image.
+         *
+         * @param width The width of image in pixels to set.
+         * @param height The height of image in pixels to set.
+         * @param offsetX The x offset in pixels to set.
+         * @param offsetY The y offset in pixels to set.
+         * @param pixelFormat Pixel format to set.
+         * @param pData Pointer to the image buffer.
+         * @param dataPayloadType The payload type of the data.
+         *   This value can be retrieved from an existing image by using the GetTLPayloadType() function call.
+         * @param dataSize The size of the provided data in bytes
+         *
+         * @see GetTLPayloadType()
+         */
+        void ResetImage(
+            size_t width,
+            size_t height,
+            size_t offsetX,
+            size_t offsetY,
+            PixelFormatEnums pixelFormat,
+            void* pData,
+            PayloadTypeInfoIDs dataPayloadType,
+            size_t dataSize);
 
         /*
-        * Releases an image that was acquired by calling camera->GetNextImage().
-        *
-        * @see Init()
-        * @see CameraBase::GetNextImage( grabTimeout )
-        *
-        */
+         * Releases an image that was acquired by calling camera->GetNextImage().
+         *
+         * @see Init()
+         * @see CameraBase::GetNextImage( grabTimeout )
+         */
         void Release();
 
         /**
-        * Gets a unique ID for this image.  Each image in a steam will have
-        * a unique ID to help identify it.
-        *
-        * @return The 64 bit unique id for this image.
-        */
+         * Gets a unique ID for this image.  Each image in a steam will have
+         * a unique ID to help identify it.
+         *
+         * @return The 64 bit unique id for this image.
+         */
         uint64_t GetID() const;
 
         /**
@@ -174,6 +300,20 @@ namespace Spinnaker
          * @return A pointer to the image data.
          */
         void* GetData() const;
+
+        /**
+         * Get the value for which no image data will exceed.
+         *
+         * @return the maximim theoretical image data value
+         */
+        float GetDataAbsoluteMax() const;
+
+        /**
+         * Get the value for which no image data will be less than
+         *
+         * @return the minimum theoretical image data value
+         */
+        float GetDataAbsoluteMin() const;
 
         /**
          * Gets a pointer to the user passed data associated with the image.
@@ -191,6 +331,10 @@ namespace Spinnaker
         /**
          * Gets the size of the buffer associated with the image in bytes.
          *
+         * For user created images, this function returns the size of the user provided data if the data size was
+         * provided. If the data size was not provided, the buffer size is calculated based on the image dimensions and
+         * pixel format.
+         *
          * @return The size of the buffer, in bytes.
          */
         size_t GetBufferSize() const;
@@ -201,7 +345,6 @@ namespace Spinnaker
          * share a buffer. The Image's current buffer will not be released.
          *
          * @param pSrcImage The Image to copy the data from.
-         *
          */
         void DeepCopy(const ImagePtr pSrcImage);
 
@@ -212,7 +355,7 @@ namespace Spinnaker
          *
          * @return The width in pixels.
          */
-        size_t  GetWidth() const;
+        size_t GetWidth() const;
 
         /**
          * Gets the height of the image in pixels. This information is retrieved
@@ -221,7 +364,7 @@ namespace Spinnaker
          *
          * @return The height in pixels.
          */
-        size_t  GetHeight() const;
+        size_t GetHeight() const;
 
         /**
          * Gets the stride of the image in bytes.  The stride
@@ -231,7 +374,7 @@ namespace Spinnaker
          *
          * @return The stride in bytes.
          */
-        size_t  GetStride() const;
+        size_t GetStride() const;
 
         /**
          * Gets the number of bits used per pixel in the image.  This information is
@@ -240,15 +383,15 @@ namespace Spinnaker
          *
          * @return The number of bits used per pixel.
          */
-        size_t  GetBitsPerPixel() const;
+        size_t GetBitsPerPixel() const;
 
         /**
-        * Gets the number of channels (depth) used in the image.
-        * Returns 0 if the number of channels for the given pixel format is unknown.
-        *
-        * @return The number of channels per pixel.
-        */
-        size_t  GetNumChannels() const;
+         * Gets the number of channels (depth) used in the image.
+         * Returns 0 if the number of channels for the given pixel format is unknown.
+         *
+         * @return The number of channels per pixel.
+         */
+        size_t GetNumChannels() const;
 
         /**
          * Gets the ROI x offset in pixels for this image.  This information is
@@ -257,7 +400,7 @@ namespace Spinnaker
          *
          * @return The x offset in pixels.
          */
-        size_t  GetXOffset() const;
+        size_t GetXOffset() const;
 
         /**
          * Gets the ROI y offset in pixels for this image.  This information is
@@ -266,7 +409,7 @@ namespace Spinnaker
          *
          * @return The y offset in pixels.
          */
-        size_t  GetYOffset() const;
+        size_t GetYOffset() const;
 
         /**
          * Gets the x padding in bytes for this image.  This is the number of bytes at
@@ -276,7 +419,7 @@ namespace Spinnaker
          *
          * @return The x padding in bytes.
          */
-        size_t  GetXPadding() const;
+        size_t GetXPadding() const;
 
         /**
          * Gets the y padding in bytes for this image.  This is the number of bytes at
@@ -286,13 +429,13 @@ namespace Spinnaker
          *
          * @return The y padding in bytes.
          */
-        size_t  GetYPadding() const;
+        size_t GetYPadding() const;
 
         /**
-        * Gets the frame ID for this image.
-        *
-        * @return The frame ID.
-        */
+         * Gets the frame ID for this image.
+         *
+         * @return The frame ID.
+         */
         uint64_t GetFrameID() const;
 
         /**
@@ -306,13 +449,13 @@ namespace Spinnaker
         size_t GetPayloadType() const;
 
         /**
-        * Gets the GenTL specific payload type that was transmitted.  This is a Transport Layer specific
-        * value that identifies how the image was transmitted. This information is
-        * retrieved from the Transport Layer Image format headers.  It is retrieved
-        * on a per image basis.
-        *
-        * @return Transport Layer specific payload type.
-        */
+         * Gets the GenTL specific payload type that was transmitted.  This is a Transport Layer specific
+         * value that identifies how the image was transmitted. This information is
+         * retrieved from the Transport Layer Image format headers.  It is retrieved
+         * on a per image basis.
+         *
+         * @return Transport Layer specific payload type.
+         */
         PayloadTypeInfoIDs GetTLPayloadType() const;
 
         /**
@@ -363,11 +506,11 @@ namespace Spinnaker
         Spinnaker::PixelFormatEnums GetPixelFormat() const;
 
         /**
-        * Returns an enum value that represents the integer type used in the
-        * pixel format of this image.
-        *
-        * @return enum value representing the integer type used.
-        */
+         * Returns an enum value that represents the integer type used in the
+         * pixel format of this image.
+         *
+         * @return enum value representing the integer type used.
+         */
         Spinnaker::PixelFormatIntType GetPixelFormatIntType() const;
 
         /**
@@ -382,101 +525,100 @@ namespace Spinnaker
         /**
          * Returns the size of valid data in the image payload.  This is the actual amount
          * of data read from the device. A user created image has a payload size of zero.
-         * GetBufferSize() returns the total size of bytes allocated for the image.
+         * The value returned here can be equal to the value returned by GetImageSize() if
+         * image data is the only payload. Note that GetBufferSize() returns the total size
+         * of bytes allocated for the image and could be equal to or greater than the size
+         * returned by this function.
          *
          * @see GetBufferSize()
+         * @see GetImageSize()
          *
          * @return size_t value representing valid payload.
          */
         size_t GetValidPayloadSize() const;
 
         /**
-        * Returns the id of the chunk data layout.
-        *
-        * @return uint64_t value representing the id of the chunk data layout.
-        */
+         * Returns the id of the chunk data layout.
+         *
+         * @return uint64_t value representing the id of the chunk data layout.
+         */
         uint64_t GetChunkLayoutId() const;
 
         /**
-        * Gets the time stamp for the image in nanoseconds.
-        *
-        * @return The time stamp of the image.
-        */
+         * Gets the time stamp for the image in nanoseconds.
+         *
+         * @return The time stamp of the image.
+         */
         uint64_t GetTimeStamp() const;
 
         /**
          * Saves the image to the specified file name with the file format
-         * specified.
+         * specified. Note that only the image data is saved regardless of the
+         * payload type used to transmit the image from camera to host. Saving a
+         * RAW image that was transmitted using the chunk image payload type
+         * will only contain the image data portion and none of the other chunks
+         * are preserved.
          *
          * @param pFilename Filename to save image with.
          * @param format File format to save in.
-         *
          */
-        void Save(const char* pFilename, ImageFileFormat format = FROM_FILE_EXT);
+        void Save(const char* pFilename, ImageFileFormat format = FROM_FILE_EXT) const;
 
         /**
          * Saves the image to the specified file name with the options specified.
          *
          * @param pFilename Filename to save image with.
          * @param pOption Options to use while saving image.
-         *
          */
-        void Save(const char* pFilename, PNGOption & pOption);
+        void Save(const char* pFilename, PNGOption& pOption) const;
 
         /**
          * Saves the image to the specified file name with the options specified.
          *
          * @param pFilename Filename to save image with.
          * @param pOption Options to use while saving image.
-         *
          */
-        void Save(const char* pFilename, PPMOption & pOption);
+        void Save(const char* pFilename, PPMOption& pOption) const;
 
         /**
          * Saves the image to the specified file name with the options specified.
          *
          * @param pFilename Filename to save image with.
          * @param pOption Options to use while saving image.
-         *
          */
-        void Save(const char* pFilename, PGMOption & pOption);
+        void Save(const char* pFilename, PGMOption& pOption) const;
 
         /**
          * Saves the image to the specified file name with the options specified.
          *
          * @param pFilename Filename to save image with.
          * @param pOption Options to use while saving image.
-         *
          */
-        void Save(const char* pFilename, TIFFOption & pOption);
+        void Save(const char* pFilename, TIFFOption& pOption) const;
 
         /**
          * Saves the image to the specified file name with the options specified.
          *
          * @param pFilename Filename to save image with.
          * @param pOption Options to use while saving image.
-         *
          */
-        void Save(const char* pFilename, JPEGOption & pOption);
+        void Save(const char* pFilename, JPEGOption& pOption) const;
 
         /**
          * Saves the image to the specified file name with the options specified.
          *
          * @param pFilename Filename to save image with.
          * @param pOption Options to use while saving image.
-         *
          */
-        void Save(const char* pFilename, JPG2Option & pOption);
+        void Save(const char* pFilename, JPG2Option& pOption) const;
 
         /**
          * Saves the image to the specified file name with the options specified.
          *
          * @param pFilename Filename to save image with.
          * @param pOption Options to use while saving image.
-         *
          */
-        void Save(const char* pFilename, BMPOption & pOption);
-
+        void Save(const char* pFilename, BMPOption& pOption) const;
 
         /**
          * Returns a pointer to a chunk data interface.  No ownership is transfered,
@@ -485,104 +627,116 @@ namespace Spinnaker
          *
          * @return ChunkData interface that provides access to image chunks.
          */
-        const ChunkData & GetChunkData() const;
+        const ChunkData& GetChunkData() const;
 
         /**
-        * Retrieves a number of pixel statistics for an image including
-        * a histogram array of the range of pixel values.
-        *
-        * @param pStatistics The statistics of an image.
-        */
+         * Retrieves a number of pixel statistics for an image including
+         * a histogram array of the range of pixel values.
+         *
+         * @param pStatistics The statistics of an image.
+         */
         void CalculateStatistics(ImageStatistics& pStatistics);
 
         /**
-        * Checks if the image contains ImageCRC checksum from chunk data
-        *
-        * @return Returns true if image contains ImageCRC checksum from chunk data and false otherwise.
-        */
+         * Checks if the image contains ImageCRC checksum from chunk data
+         *
+         * @return Returns true if image contains ImageCRC checksum from chunk data and false otherwise.
+         */
         bool HasCRC() const;
 
         /**
-        * Checks if the computed checksum matches with chunk data's ImageCRC
-        *
-        * @return Returns true if computed checksum matches with the chunk data's CRC and false otherwise.
-        */
+         * Checks if the computed checksum matches with chunk data's ImageCRC
+         *
+         * @return Returns true if computed checksum matches with the chunk data's CRC and false otherwise.
+         */
         bool CheckCRC() const;
 
         /**
-        * Returns the size of the image
-        *
-        * @return The image size in bytes.
-        */
+         * Returns the size of the image
+         *
+         * For chunk images, only the size of chunk image portion is reported here. The entire chunk data
+         * payload can be queried by GetValidPayloadSize(). For compressed images, this value may be
+         * different than the image size once decompressed.
+         *
+         * @see GetBufferSize()
+         * @see GetValidPayloadSize()
+         *
+         * @return The image size in bytes.
+         */
         size_t GetImageSize() const;
 
         /**
-        * Returns true if the image is still in use by the stream
-        *
-        * @return Returns true if the image is in use and false otherwise.
-        */
+         * Returns true if the image is still in use by the stream
+         *
+         * @return Returns true if the image is in use and false otherwise.
+         */
         bool IsInUse();
 
         /**
-        * Returns data integrity status of the image returned from GetNextImage()
-        *
-        * @return Returns whether image has any data integrity issues.
-        */
+         * Returns data integrity status of the image returned from GetNextImage()
+         *
+         * @return Returns whether image has any data integrity issues.
+         */
         ImageStatus GetImageStatus() const;
 
         /**
-        * Returns a string describing the meaning of the status enum
-        *
-        * @return Returns the meaning of the status enum.
-        */
-        static const char * GetImageStatusDescription(ImageStatus status);
+         * Returns a string describing the meaning of the status enum
+         *
+         * @return Returns the meaning of the status enum.
+         */
+        static const char* GetImageStatusDescription(ImageStatus status);
 
         /**
-        * Extracts an image from a monochrome-polarized sensor.
-        * The extracted image will be returned as Mono8 or BGRa8 for heatmap images.
-        *
-        * @param polarizationAlgorithm Desired polarization algorithm to use.
-        * @param resolution Desired resolution of output image.
-        * @return The converted image.
-        */
-        ImagePtr ExtractPolarization(const PolarizationAlgorithm polarizationAlgorithm, const PolarizationResolution resolution) const;
+         * Returns a boolean value indicating whether this image is compressed.
+         *
+         * @return Returns true if image is compressed, false otherwise.
+         */
+        bool IsCompressed() const;
 
-        /**
-        * Returns the polarization values associated with an extracted polarization image.
-        * Note that standard quadrants (QUADRANT_I0_GRAYSCALE - QUADRANT_I135_GRAYSCALE)
-        * do not provide polarization values.
-        *
-        * @return The polarization values associated with a polarization image.
-        */
-        float* GetPolarizationValues() const;
-
-        /**
-        * Returns the polarization algorithm used to extract a polarization image.
-        *
-        * @return The polarization algorithm used to extract the polarization image.
-        */
-        PolarizationAlgorithm GetPolarizationAlgorithm() const;
-
-    protected:
+      protected:
+        friend class IDataStream;
+        friend class Stream;
         friend class ImageConverter;
+        friend class ImageConverterIpp;
+
         friend class ImageFiler;
         friend class ImageStatsCalculator;
+        friend class ImageUtilityImpl;
+        friend class ImageUtilityPolarizationImpl;
 
-        struct ImageData;
-        ImageData* m_pImageData;
+        ImageData* GetImageData() const;
 
         Image();
         Image(const ImagePtr image);
-        Image(size_t width, size_t height, size_t offsetX, size_t offsetY, Spinnaker::PixelFormatEnums pixelFormat, void* pData);
+        Image(size_t width, size_t height, size_t offsetX, size_t offsetY, PixelFormatEnums pixelFormat, void* pData);
+        Image(
+            size_t width,
+            size_t height,
+            size_t offsetX,
+            size_t offsetY,
+            Spinnaker::PixelFormatEnums pixelFormat,
+            void* pData,
+            PayloadTypeInfoIDs payloadType,
+            size_t payloadSize);
 
         ImagePtr CreateShared() const;
-        void DeepCopy(const Image & pSrcImage);
-        void Convert(Spinnaker::PixelFormatEnums format, Image & pDestImage, ColorProcessingAlgorithm colorAlgorithm = DEFAULT) const;
+        void DeepCopy(const Image& pSrcImage);
+        void Convert(PixelFormatEnums format, Image& pDestImage, ColorProcessingAlgorithm colorAlgorithm = DEFAULT)
+            const;
+
+      private:
+        ImageData* m_pImageData;
     };
 
     /*@}*/
 
     /*@}*/
-}
+} // namespace Spinnaker
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 #endif // FLIR_SPINNAKER_IMAGE_H

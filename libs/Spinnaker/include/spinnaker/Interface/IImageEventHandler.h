@@ -1,5 +1,5 @@
 //=============================================================================
-// Copyright © 2017 FLIR Integrated Imaging Solutions, Inc. All Rights Reserved.
+// Copyright (c) 2001-2021 FLIR Systems, Inc. All Rights Reserved.
 //
 // This software is the confidential and proprietary information of FLIR
 // Integrated Imaging Solutions, Inc. ("Confidential Information"). You
@@ -15,29 +15,26 @@
 // THIS SOFTWARE OR ITS DERIVATIVES.
 //=============================================================================
 
-#ifndef PGR_SPINNAKER_ILOGGINGEVENT_H
-#define PGR_SPINNAKER_ILOGGINGEVENT_H
+#ifndef FLIR_SPINNAKER_IIMAGE_EVENT_HANDLER_H
+#define FLIR_SPINNAKER_IIMAGE_EVENT_HANDLER_H
 
-#include "SpinnakerDefs.h"
+#include "EventHandler.h"
+#include "Spinnaker.h"
 #include "SpinnakerPlatform.h"
-#include "Event.h"
-#include "LoggingEventDataPtr.h"
 
 namespace Spinnaker
 {
-    class LoggingEventDataPtr;
-
-    class ILoggingEvent : public virtual Event
+    class IImageEventHandler : public virtual EventHandler
     {
-    public:
-        virtual ~ILoggingEvent() {};
-        virtual void OnLogEvent(LoggingEventDataPtr eventPtr) = 0;
+      public:
+        virtual ~IImageEventHandler(){};
+        virtual void OnImageEvent(ImagePtr image) = 0;
 
-    protected:
-        ILoggingEvent() {};
-        ILoggingEvent(const ILoggingEvent&) {};
-        ILoggingEvent& operator=(const ILoggingEvent&);
+      protected:
+        IImageEventHandler(){};
+        IImageEventHandler(const IImageEventHandler&){};
+        IImageEventHandler& operator=(const IImageEventHandler&);
     };
-}
+} // namespace Spinnaker
 
-#endif /* PGR_SPINNAKER_ILOGGINGEVENT_H */
+#endif /* FLIR_SPINNAKER_IIMAGE_EVENT_HANDLER_H */

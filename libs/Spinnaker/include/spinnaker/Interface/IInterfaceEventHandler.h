@@ -1,5 +1,5 @@
 //=============================================================================
-// Copyright © 2017 FLIR Integrated Imaging Solutions, Inc. All Rights Reserved.
+// Copyright (c) 2001-2021 FLIR Systems, Inc. All Rights Reserved.
 //
 // This software is the confidential and proprietary information of FLIR
 // Integrated Imaging Solutions, Inc. ("Confidential Information"). You
@@ -15,27 +15,29 @@
 // THIS SOFTWARE OR ITS DERIVATIVES.
 //=============================================================================
 
-#ifndef PGR_SPINNAKER_IDEVICEEVENT_H
-#define PGR_SPINNAKER_IDEVICEEVENT_H
+#ifndef FLIR_SPINNAKER_IINTERFACE_EVENT_HANDLER_H
+#define FLIR_SPINNAKER_IINTERFACE_EVENT_HANDLER_H
 
-#include "Event.h"
+#include "EventHandler.h"
+#include "DeviceArrivalEventHandler.h"
+#include "DeviceRemovalEventHandler.h"
 #include "SpinnakerPlatform.h"
 
 namespace Spinnaker
 {
-    class IDeviceEvent : public virtual Event
+    class SPINNAKER_API IInterfaceEventHandler : public virtual IDeviceArrivalEventHandler,
+                                                 public virtual IDeviceRemovalEventHandler
     {
-    public:
-        virtual ~IDeviceEvent() {};
-        virtual void OnDeviceEvent(Spinnaker::GenICam::gcstring eventName) = 0;
-        virtual uint64_t GetDeviceEventId() const = 0;
-        virtual GenICam::gcstring GetDeviceEventName() const = 0;
+      public:
+        virtual ~IInterfaceEventHandler(){};
+        virtual void OnDeviceArrival(uint64_t serialNumber) = 0;
+        virtual void OnDeviceRemoval(uint64_t serialNumber) = 0;
 
-    protected:
-        IDeviceEvent() {};
-        IDeviceEvent(const IDeviceEvent&) {};
-        IDeviceEvent& operator=(const IDeviceEvent&);
+      protected:
+        IInterfaceEventHandler(){};
+        IInterfaceEventHandler(const IInterfaceEventHandler&){};
+        IInterfaceEventHandler& operator=(const IInterfaceEventHandler&);
     };
-}
+} // namespace Spinnaker
 
-#endif /* PGR_SPINNAKER_IDEVICEEVENT_H */
+#endif /* FLIR_SPINNAKER_IINTERFACE_EVENT_HANDLER_H */

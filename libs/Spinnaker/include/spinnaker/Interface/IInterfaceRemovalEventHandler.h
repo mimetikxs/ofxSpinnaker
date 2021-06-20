@@ -1,5 +1,5 @@
 //=============================================================================
-// Copyright © 2017 FLIR Integrated Imaging Solutions, Inc. All Rights Reserved.
+// Copyright (c) 2001-2021 FLIR Systems, Inc. All Rights Reserved.
 //
 // This software is the confidential and proprietary information of FLIR
 // Integrated Imaging Solutions, Inc. ("Confidential Information"). You
@@ -15,25 +15,25 @@
 // THIS SOFTWARE OR ITS DERIVATIVES.
 //=============================================================================
 
-#ifndef PGR_SPINNAKER_IREMOVALEVENT_H
-#define PGR_SPINNAKER_IREMOVALEVENT_H
+#ifndef FLIR_SPINNAKER_IINTERFACE_REMOVAL_EVENT_HANDLER_H
+#define FLIR_SPINNAKER_IINTERFACE_REMOVAL_EVENT_HANDLER_H
 
-#include "Event.h"
+#include "EventHandler.h"
 #include "SpinnakerPlatform.h"
 
 namespace Spinnaker
 {
-    class IRemovalEvent : public virtual Event
+    class IInterfaceRemovalEventHandler : public virtual EventHandler
     {
-    public:
-        virtual ~IRemovalEvent() {};
-        virtual void OnDeviceRemoval(uint64_t serialNumber) = 0;
+      public:
+        virtual ~IInterfaceRemovalEventHandler(){};
+        virtual void OnInterfaceRemoval(std::string interfaceID) = 0;
 
-    protected:
-        IRemovalEvent() {};
-        IRemovalEvent(const IRemovalEvent&) {};
-        IRemovalEvent& operator=(const IRemovalEvent&);
+      protected:
+        IInterfaceRemovalEventHandler(){};
+        IInterfaceRemovalEventHandler(const IInterfaceRemovalEventHandler&){};
+        IInterfaceRemovalEventHandler& operator=(const IInterfaceRemovalEventHandler&);
     };
-}
+} // namespace Spinnaker
 
-#endif /* PGR_SPINNAKER_IREMOVALEVENT_H */
+#endif // FLIR_SPINNAKER_IINTERFACE_REMOVAL_EVENT_HANDLER_H

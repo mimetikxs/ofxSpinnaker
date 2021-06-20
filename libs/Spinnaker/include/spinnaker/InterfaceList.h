@@ -1,5 +1,5 @@
 //=============================================================================
-// Copyright © 2017 FLIR Integrated Imaging Solutions, Inc. All Rights Reserved.
+// Copyright (c) 2001-2021 FLIR Systems, Inc. All Rights Reserved.
 //
 // This software is the confidential and proprietary information of FLIR
 // Integrated Imaging Solutions, Inc. ("Confidential Information"). You
@@ -26,40 +26,40 @@ namespace Spinnaker
      * @defgroup SpinnakerClasses Spinnaker Classes
      */
 
-     /*@{*/
+    /*@{*/
 
-     /**
-      * @defgroup InterfaceList_h InterfaceList Class
-      */
+    /**
+     * @defgroup InterfaceList_h InterfaceList Class
+     */
 
-      /*@{*/
+    /*@{*/
 
-      /**
-      * @brief A list of the available interfaces on the system.
-      */
+    /**
+     * @brief A list of the available interfaces on the system.
+     */
 
     class SPINNAKER_API InterfaceList : public IInterfaceList
     {
-    public:
+      public:
         /*
-        * Default Constructor
-        */
+         * Default Constructor
+         */
         InterfaceList(void);
 
         /*
-        * Virtual Destructor
-        */
+         * Virtual Destructor
+         */
         virtual ~InterfaceList(void);
 
         /*
-        * Copy Constructor
-        */
-        InterfaceList(const InterfaceList & iface);
+         * Copy Constructor
+         */
+        InterfaceList(const InterfaceList& iface);
 
         /**
          * Assignment operator.
          */
-        InterfaceList&	operator=(const InterfaceList& iface);
+        InterfaceList& operator=(const InterfaceList& iface);
 
         /**
          * Array subscription operators
@@ -92,14 +92,21 @@ namespace Spinnaker
          */
         void Clear();
 
-    protected:
-        friend class SystemImpl;
+        /**
+         * Appends a copy of the interfact list.
+         *
+         * @param list Another InterfaceList object, whose elements are added to this list.
+         */
+        void Append(const InterfaceList* list);
 
+      protected:
+        friend class SystemImpl;
+        friend class ProducerImpl;
     };
 
     /*@}*/
 
     /*@}*/
-}
+} // namespace Spinnaker
 
 #endif // FLIR_SPINNAKER_INTERFACELIST_H

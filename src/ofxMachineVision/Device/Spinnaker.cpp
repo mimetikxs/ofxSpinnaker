@@ -82,11 +82,11 @@ namespace ofxMachineVision {
 			this->camera->Init();
 
 			Specification specification(CaptureSequenceType::Continuous
-				, this->camera->Width()
-				, this->camera->Height()
-				, (string) this->camera->DeviceVendorName()
-				, (string) this->camera->DeviceModelName()
-				, (string) this->camera->DeviceSerialNumber());
+				, this->camera->Width.GetValue()
+				, this->camera->Height.GetValue()
+				, (string) this->camera->DeviceVendorName.GetValue()
+				, (string) this->camera->DeviceModelName.GetValue()
+				, (string) this->camera->DeviceSerialNumber.GetValue());
 
 			//turn off auto exposure
 			this->camera->ExposureAuto.SetValue(::Spinnaker::ExposureAutoEnums::ExposureAuto_Off);
@@ -99,7 +99,7 @@ namespace ofxMachineVision {
 			this->setupFloatParameter(this->camera->Gamma);
 
 			//always capture the latest image from the camera (ideally this should be a parameter)
-			this->camera->TLStream.StreamBufferHandlingMode.SetValue(::Spinnaker::StreamBufferHandlingMode_NewestFirstOverwrite);
+			this->camera->TLStream.StreamBufferHandlingMode.SetValue(::Spinnaker::StreamBufferHandlingMode_NewestOnly);
 
 			//build trigger parameter
 			auto & spinnakerParameter = this->camera->TriggerMode;
@@ -118,7 +118,13 @@ namespace ofxMachineVision {
 				OFXMV_ERROR << "Cannot add parameter " << spinnakerParameter.GetName() << ". " << e.what();
 			}
 
+			// Trigger delay parameter
+			try {
 			this->setupFloatParameter(this->camera->TriggerDelay);
+			}
+			catch (const std::exception& e) {
+				OFXMV_ERROR << "Cannot add parameter TriggerDelay. " << e.what();
+			}
 
 			//Flip parameter
 			{

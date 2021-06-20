@@ -1,5 +1,5 @@
 //=============================================================================
-// Copyright © 2017 FLIR Integrated Imaging Solutions, Inc. All Rights Reserved.
+// Copyright (c) 2001-2021 FLIR Systems, Inc. All Rights Reserved.
 //
 // This software is the confidential and proprietary information of FLIR
 // Integrated Imaging Solutions, Inc. ("Confidential Information"). You
@@ -15,70 +15,70 @@
 // THIS SOFTWARE OR ITS DERIVATIVES.
 //=============================================================================
 
-#ifndef PGR_SPINNAKER_DEVICEEVENT_H
-#define PGR_SPINNAKER_DEVICEEVENT_H
+#ifndef FLIR_SPINNAKER_DEVICE_EVENT_HANDLER_H
+#define FLIR_SPINNAKER_DEVICE_EVENT_HANDLER_H
 
-#include "Interface/IDeviceEvent.h"
+#include "Interface/IDeviceEventHandler.h"
 
 namespace Spinnaker
 {
     /**
-     *  @defgroup SpinnakerEventClasses Spinnaker Event Classes
+     *  @defgroup SpinnakerEventClasses Spinnaker EventHandler Classes
      */
-     /*@{*/
-
-     /**
-     *  @defgroup DeviceEvent_h DeviceEvent Class
-     */
-     /*@{*/
+    /*@{*/
 
     /**
-    * @brief A handler to device events.
-    */
+     *  @defgroup DeviceEventHandler_h DeviceEventHandler Class
+     */
+    /*@{*/
 
-    class SPINNAKER_API DeviceEvent : public IDeviceEvent
+    /**
+     * @brief A handler to device events.
+     */
+
+    class SPINNAKER_API DeviceEventHandler : public IDeviceEventHandler
     {
-    public:
+      public:
         /**
-        * Default constructor.
-        */
-        DeviceEvent();
+         * Default constructor.
+         */
+        DeviceEventHandler();
 
         /**
-        * Virtual destructor.
-        */
-        virtual ~DeviceEvent();
+         * Virtual destructor.
+         */
+        virtual ~DeviceEventHandler();
 
         /**
-        * Device event callback.
-        *
-        * @param eventName The name of the event
-        */
+         * Device event callback.
+         *
+         * @param eventName The name of the event
+         */
         virtual void OnDeviceEvent(Spinnaker::GenICam::gcstring eventName) = 0;
 
         /**
-        * Get the ID of the device event.
-        *
-        * @return The device event ID
-        */
+         * Get the ID of the device event.
+         *
+         * @return The device event ID
+         */
         uint64_t GetDeviceEventId() const;
 
         /**
-        * Get the name of the device event.
-        *
-        * @return The device event name
-        */
+         * Get the name of the device event.
+         *
+         * @return The device event name
+         */
         GenICam::gcstring GetDeviceEventName() const;
 
-    protected:
+      protected:
         /**
-        * Assignment operator.
-        */
-        DeviceEvent& operator=( const DeviceEvent& );
+         * Assignment operator.
+         */
+        DeviceEventHandler& operator=(const DeviceEventHandler&);
     };
     /*@}*/
 
     /*@}*/
-}
+} // namespace Spinnaker
 
-#endif // PGR_SPINNAKER_DEVICEEVENT_H
+#endif // FLIR_SPINNAKER_DEVICE_EVENT_HANDLER_H

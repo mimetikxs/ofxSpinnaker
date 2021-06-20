@@ -1,20 +1,20 @@
-libs/
-docs/
+# #libs/
+# docs/
 
-*.depend
-*.layout
-*.mode*v3
-*.pbxuser
-*.app*
-*.DS_*
-._*.*
+# *.depend
+# *.layout
+# *.mode*v3
+# *.pbxuser
+# *.app*
+# *.DS_*
+# ._*.*
 
-.svn/
-obj/
-bin/
-build/
-!data/
-xcuserdata/
+# .svn/
+# obj/
+# bin/
+# build/
+# !data/
+# xcuserdata/
 
 .vs/**
 ipch/
@@ -23,15 +23,21 @@ ipch/
 *.vcxproj.user
 *.vsxproj.filters
 
-*.obj
-*.tlog
-*.sdf
-*.pdb
-*.idb
-*.pch
-Debug/
-Release/
+# *.obj
+# *.tlog
+# *.sdf
+# *.pdb
+# *.idb
+# *.pch
+# Debug/
+# Release/
 
 
-*~.xml
-._build
+# *~.xml
+# ._build
+
+ofxSpinnakerLib/bin
+ofxSpinnakerLib/obj
+
+example/bin
+example/obj

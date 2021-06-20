@@ -1,5 +1,5 @@
 //=============================================================================
-// Copyright © 2017 FLIR Integrated Imaging Solutions, Inc. All Rights Reserved.
+// Copyright (c) 2001-2021 FLIR Systems, Inc. All Rights Reserved.
 //
 // This software is the confidential and proprietary information of FLIR
 // Integrated Imaging Solutions, Inc. ("Confidential Information"). You
@@ -15,56 +15,25 @@
 // THIS SOFTWARE OR ITS DERIVATIVES.
 //=============================================================================
 
-#ifndef PGR_SPINNAKER_ARRIVALEVENT_H
-#define PGR_SPINNAKER_ARRIVALEVENT_H
+#ifndef FLIR_SPINNAKER_IDEVICE_REMOVAL_EVENT_HANDLER_H
+#define FLIR_SPINNAKER_IDEVICE_REMOVAL_EVENT_HANDLER_H
 
-#include "Interface/IArrivalEvent.h"
+#include "EventHandler.h"
+#include "SpinnakerPlatform.h"
 
 namespace Spinnaker
 {
-	/**
-	 *  @defgroup SpinnakerEventClasses Spinnaker Event Classes
-	 */
+    class IDeviceRemovalEventHandler : public virtual EventHandler
+    {
+      public:
+        virtual ~IDeviceRemovalEventHandler(){};
+        virtual void OnDeviceRemoval(uint64_t serialNumber) = 0;
 
-	/*@{*/
+      protected:
+        IDeviceRemovalEventHandler(){};
+        IDeviceRemovalEventHandler(const IDeviceRemovalEventHandler&){};
+        IDeviceRemovalEventHandler& operator=(const IDeviceRemovalEventHandler&);
+    };
+} // namespace Spinnaker
 
-	/**
-	 *  @defgroup ArrivalEvent_h ArrivalEvent Class
-	 */
-
-	/*@{*/
-	
-	/**
-	 * @brief An event handler for capturing the device arrival event.
-	 */
-	class SPINNAKER_API  ArrivalEvent : public IArrivalEvent
-	{
-	public:
-		/**
-		* Default constructor.
-		*/
-		ArrivalEvent();
-
-		/**
-		* Virtual destructor.
-		*/
-		virtual ~ArrivalEvent();
-
-		/**
-		* Callback to the device arrival event.		
-		*/
-		virtual void OnDeviceArrival(uint64_t serialNumber) = 0;
-
-	protected:
-		/**
-		* Assignment operator.
-		*/
-		ArrivalEvent& operator=( const ArrivalEvent& );
-	};
-
-	/*@}*/
-
-	/*@}*/
-}
-
-#endif // PGR_SPINNAKER_ARRIVALEVENT_H
+#endif /* FLIR_SPINNAKER_IDEVICE_REMOVAL_EVENT_HANDLER_H */

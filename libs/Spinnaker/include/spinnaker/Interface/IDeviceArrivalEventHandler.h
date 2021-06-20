@@ -1,5 +1,5 @@
 //=============================================================================
-// Copyright © 2017 FLIR Integrated Imaging Solutions, Inc. All Rights Reserved.
+// Copyright (c) 2001-2021 FLIR Systems, Inc. All Rights Reserved.
 //
 // This software is the confidential and proprietary information of FLIR
 // Integrated Imaging Solutions, Inc. ("Confidential Information"). You
@@ -15,28 +15,25 @@
 // THIS SOFTWARE OR ITS DERIVATIVES.
 //=============================================================================
 
-#ifndef PGR_SPINNAKER_IINTERFACEVENT_H
-#define PGR_SPINNAKER_IINTERFACEVENT_H
+#ifndef FLIR_SPINNAKER_IDEVICE_ARRIVAL_EVENT_HANDLER_H
+#define FLIR_SPINNAKER_IDEVICE_ARRIVAL_EVENT_HANDLER_H
 
-#include "Event.h"
-#include "ArrivalEvent.h"
-#include "RemovalEvent.h"
+#include "EventHandler.h"
 #include "SpinnakerPlatform.h"
 
 namespace Spinnaker
 {
-    class SPINNAKER_API IInterfaceEvent : public virtual IArrivalEvent, public virtual IRemovalEvent
+    class IDeviceArrivalEventHandler : public virtual EventHandler
     {
-    public:
-        virtual ~IInterfaceEvent() {};
+      public:
+        virtual ~IDeviceArrivalEventHandler(){};
         virtual void OnDeviceArrival(uint64_t serialNumber) = 0;
-        virtual void OnDeviceRemoval(uint64_t serialNumber) = 0;
 
-    protected:
-        IInterfaceEvent() {};
-        IInterfaceEvent(const IInterfaceEvent&) {};
-        IInterfaceEvent& operator=(const IInterfaceEvent&);
+      protected:
+        IDeviceArrivalEventHandler(){};
+        IDeviceArrivalEventHandler(const IDeviceArrivalEventHandler&){};
+        IDeviceArrivalEventHandler& operator=(const IDeviceArrivalEventHandler&);
     };
-}
+} // namespace Spinnaker
 
-#endif /* PGR_SPINNAKER_IINTERFACEVENT_H */
+#endif /* FLIR_SPINNAKER_IDEVICE_ARRIVAL_EVENT_HANDLER_H */

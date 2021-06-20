@@ -1,5 +1,5 @@
 //=============================================================================
-// Copyright © 2017 FLIR Integrated Imaging Solutions, Inc. All Rights Reserved.
+// Copyright (c) 2001-2021 FLIR Systems, Inc. All Rights Reserved.
 //
 // This software is the confidential and proprietary information of FLIR
 // Integrated Imaging Solutions, Inc. ("Confidential Information"). You
@@ -15,59 +15,29 @@
 // THIS SOFTWARE OR ITS DERIVATIVES.
 //=============================================================================
 
-#ifndef PGR_SPINNAKER_IMAGEEVENT_H
-#define PGR_SPINNAKER_IMAGEEVENT_H
+#ifndef FLIR_SPINNAKER_ILOGGING_EVENT_HANDLER_H
+#define FLIR_SPINNAKER_ILOGGING_EVENT_HANDLER_H
 
-#include "Interface/IImageEvent.h"
+#include "SpinnakerDefs.h"
+#include "SpinnakerPlatform.h"
+#include "EventHandler.h"
+#include "LoggingEventDataPtr.h"
 
 namespace Spinnaker
 {
-	/**
-	 *  @defgroup SpinnakerEventClasses Spinnaker Event Classes
-	 */
+    class LoggingEventDataPtr;
 
-	/*@{*/
+    class ILoggingEventHandler : public virtual EventHandler
+    {
+      public:
+        virtual ~ILoggingEventHandler(){};
+        virtual void OnLogEvent(LoggingEventDataPtr eventPtr) = 0;
 
-	/**
-	 *  @defgroup ImageEvent_h ImageEvent Class
-	 */
+      protected:
+        ILoggingEventHandler(){};
+        ILoggingEventHandler(const ILoggingEventHandler&){};
+        ILoggingEventHandler& operator=(const ILoggingEventHandler&);
+    };
+} // namespace Spinnaker
 
-	/*@{*/
-
-    /**
-    * @brief A handler for capturing image arrival events.
-    */
-
-	class SPINNAKER_API ImageEvent : public IImageEvent
-	{
-	public:
-		/**
-		* Default Constructor
-		*/
-		ImageEvent();
-
-		/**
-		* Virtual Destructor
-		*/
-		virtual ~ImageEvent();
-
-		/**
-		* Image event callback
-		*
-		* @param image The ImagePtr object
-		*/
-		virtual void OnImageEvent(ImagePtr image) = 0;
-
-	protected:
-		/**
-		* Assignment operator.
-		*/
-		ImageEvent& operator=( const ImageEvent& );
-	};
-
-	/*@}*/
-
-	/*@}*/
-}
-
-#endif // PGR_SPINNAKER_IMAGEEVENT_H
+#endif /* FLIR_SPINNAKER_ILOGGING_EVENT_HANDLER_H */

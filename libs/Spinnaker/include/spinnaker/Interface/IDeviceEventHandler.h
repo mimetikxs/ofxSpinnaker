@@ -1,5 +1,5 @@
 //=============================================================================
-// Copyright © 2017 FLIR Integrated Imaging Solutions, Inc. All Rights Reserved.
+// Copyright (c) 2001-2021 FLIR Systems, Inc. All Rights Reserved.
 //
 // This software is the confidential and proprietary information of FLIR
 // Integrated Imaging Solutions, Inc. ("Confidential Information"). You
@@ -15,26 +15,27 @@
 // THIS SOFTWARE OR ITS DERIVATIVES.
 //=============================================================================
 
-#ifndef PGR_SPINNAKER_IIMAGEEVENT_H
-#define PGR_SPINNAKER_IIMAGEEVENT_H
+#ifndef FLIR_SPINNAKER_IDEVICE_EVENT_H
+#define FLIR_SPINNAKER_IDEVICE_EVENT_H
 
-#include "Event.h"
-#include "Spinnaker.h"
+#include "EventHandler.h"
 #include "SpinnakerPlatform.h"
 
 namespace Spinnaker
 {
-    class IImageEvent : public virtual Event
+    class IDeviceEventHandler : public virtual EventHandler
     {
-    public:
-        virtual ~IImageEvent() {};
-        virtual void OnImageEvent(ImagePtr image) = 0;
+      public:
+        virtual ~IDeviceEventHandler(){};
+        virtual void OnDeviceEvent(Spinnaker::GenICam::gcstring eventName) = 0;
+        virtual uint64_t GetDeviceEventId() const = 0;
+        virtual GenICam::gcstring GetDeviceEventName() const = 0;
 
-    protected:
-        IImageEvent() {};
-        IImageEvent(const IImageEvent&) {};
-        IImageEvent& operator=(const IImageEvent&);
+      protected:
+        IDeviceEventHandler(){};
+        IDeviceEventHandler(const IDeviceEventHandler&){};
+        IDeviceEventHandler& operator=(const IDeviceEventHandler&);
     };
-}
+} // namespace Spinnaker
 
-#endif /* PGR_SPINNAKER_IIMAGEEVENT_H */
+#endif /* FLIR_SPINNAKER_IDEVICE_EVENT_H */
